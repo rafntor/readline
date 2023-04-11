@@ -9,7 +9,6 @@ namespace Internal.ReadLine
     internal class KeyHandler
     {
         private int _cursorPos;
-        private int _cursorLimit;
         private StringBuilder _text;
         private List<string> _history;
         private int _historyIndex;
@@ -19,14 +18,8 @@ namespace Internal.ReadLine
         private int _completionStart;
         private int _completionsIndex;
         private IConsole Console2;
-
         private bool IsStartOfLine() => _cursorPos == 0;
-
-        private bool IsEndOfLine() => _cursorPos == _cursorLimit;
-
-        private bool IsStartOfBuffer() => Console2.CursorLeft == 0;
-
-        private bool IsEndOfBuffer() => Console2.CursorLeft == Console2.BufferWidth - 1;
+        private bool IsEndOfLine() => _cursorPos == _text.Length;
         private bool IsInAutoCompleteMode() => _completions != null;
 
         private void MoveCursorLeft()
@@ -34,7 +27,7 @@ namespace Internal.ReadLine
             if (IsStartOfLine())
                 return;
 
-            if (IsStartOfBuffer())
+            if (Console2.CursorLeft == 0)
                 Console2.SetCursorPosition(Console2.BufferWidth - 1, Console2.CursorTop - 1);
             else
                 Console2.SetCursorPosition(Console2.CursorLeft - 1, Console2.CursorTop);
@@ -59,7 +52,7 @@ namespace Internal.ReadLine
             if (IsEndOfLine())
                 return;
 
-            if (IsEndOfBuffer())
+            if (Console2.CursorLeft == Console2.BufferWidth - 1)
                 Console2.SetCursorPosition(0, Console2.CursorTop + 1);
             else
                 Console2.SetCursorPosition(Console2.CursorLeft + 1, Console2.CursorTop);
@@ -113,8 +106,6 @@ namespace Internal.ReadLine
                 Console2.SetCursorPosition(left, top);
                 MoveCursorRight();
             }
-
-            _cursorLimit++;
         }
 
         private void Backspace()
@@ -130,7 +121,6 @@ namespace Internal.ReadLine
             int top = Console2.CursorTop;
             Console2.Write(string.Format("{0} ", replacement));
             Console2.SetCursorPosition(left, top);
-            _cursorLimit--;
         }
 
         private void Delete()
@@ -145,13 +135,12 @@ namespace Internal.ReadLine
             int top = Console2.CursorTop;
             Console2.Write(string.Format("{0} ", replacement));
             Console2.SetCursorPosition(left, top);
-            _cursorLimit--;
         }
 
         private void TransposeChars()
         {
             // local helper functions
-            bool almostEndOfLine() => (_cursorLimit - _cursorPos) == 1;
+            bool almostEndOfLine() => (_text.Length - _cursorPos) == 1;
             int incrementIf(Func<bool> expression, int index) =>  expression() ? index + 1 : index;
             int decrementIf(Func<bool> expression, int index) => expression() ? index - 1 : index;
 
@@ -209,6 +198,15 @@ namespace Internal.ReadLine
                 _completionsIndex = _completions.Length - 1;
 
             WriteString(_completions[_completionsIndex]);
+        }
+
+        private void FirstHistory()
+        {
+            if (_history.Count > 0)
+            {
+                _historyIndex = 0;
+                WriteNewString(_history[_historyIndex]);
+            }
         }
 
         private void PrevHistory()
@@ -272,6 +270,7 @@ namespace Internal.ReadLine
             _keyActions["UpArrow"] = PrevHistory;
             _keyActions["ControlP"] = PrevHistory;
             _keyActions["DownArrow"] = NextHistory;
+            _keyActions["F3"] = FirstHistory;
             _keyActions["ControlN"] = NextHistory;
             _keyActions["ControlU"] = () =>
             {
@@ -290,6 +289,24 @@ namespace Internal.ReadLine
                 while (!IsStartOfLine() && _text[_cursorPos - 1] != ' ')
                     Backspace();
             };
+            _keyActions["ControlHome"] = _keyActions["ControlU"];
+            _keyActions["ControlEnd"] = _keyActions["ControlK"];
+            _keyActions["ControlBackspace"] = _keyActions["ControlW"];
+            _keyActions["ControlLeftArrow"] = () =>
+            {
+                while (!IsStartOfLine() && _text[_cursorPos - 1] == ' ')
+                    MoveCursorLeft();
+                while (!IsStartOfLine() && _text[_cursorPos - 1] != ' ')
+                    MoveCursorLeft();
+            };
+            _keyActions["ControlRightArrow"] = () =>
+            {
+                while (!IsEndOfLine() && _text[_cursorPos] != ' ')
+                    MoveCursorRight();
+                while (!IsEndOfLine() && _text[_cursorPos] == ' ')
+                    MoveCursorRight();
+            };
+
             _keyActions["ControlT"] = TransposeChars;
 
             _keyActions["Tab"] = () =>

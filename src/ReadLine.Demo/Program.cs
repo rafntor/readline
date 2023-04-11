@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace ConsoleApplication
 {
@@ -9,17 +9,28 @@ namespace ConsoleApplication
             Console.WriteLine("ReadLine Library Demo");
             Console.WriteLine("---------------------");
             Console.WriteLine();
+            Console.TreatControlCAsInput = true;
 
             string[] history = new string[] { "ls -a", "dotnet run", "git init" };
             ReadLine.AddHistory(history);
 
             ReadLine.AutoCompletionHandler = new AutoCompletionHandler();
 
-            string input = ReadLine.Read("(prompt)> ");
-            Console.WriteLine(input);
+            while (true)
+            {
+                string input = ReadLine.Read("(prompt)> ");
 
-            input = ReadLine.ReadPassword("Enter Password> ");
-            Console.WriteLine(input);
+                if (input is null)
+                    break;
+
+                Console.WriteLine(input);
+
+                if (input == "pwd")
+                {
+                    input = ReadLine.ReadPassword("Enter Password> ");
+                    Console.WriteLine(input);
+                }
+            }
         }
     }
 
