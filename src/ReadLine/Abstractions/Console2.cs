@@ -16,6 +16,7 @@ namespace Internal.ReadLine.Abstractions
         {
             Console.SetCursorPosition(left, top);
         }
+        public ConsoleKeyInfo ReadKey() => Console.ReadKey(true);
 
         public void Write(string value)
         {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Xunit;
 
@@ -8,6 +8,9 @@ namespace ReadLine.Tests
 {
     public class ReadLineTests : IDisposable
     {
+        void AddHistory(params string[] history) => Context.History.AddRange(history);
+        System.Collections.Generic.List<string> GetHistory() => Context.History;
+
         public ReadLineTests()
         {
             string[] history = new string[] { "ls -a", "dotnet run", "git init" };
@@ -40,7 +43,7 @@ namespace ReadLine.Tests
         {
             // If all above tests pass
             // clear history works
-            ClearHistory();
+            Context.History.Clear();
         }
     }
 }

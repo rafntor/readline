@@ -1,61 +1,49 @@
 using Internal.ReadLine;
 using Internal.ReadLine.Abstractions;
 
-using System.Collections.Generic;
-
 namespace System
 {
     public static class ReadLine
     {
-        private static List<string> _history;
+        private static ReadContext _context = new();
+        public static ReadContext Context => _context;
+        public static string Read(string prompt = "", string @default = "") => Read(Context, prompt, @default);
+        public static string ReadPassword(string prompt = "") => ReadPassword(Context, prompt);
 
-        static ReadLine()
+        public static string Read(this ReadContext context, string prompt = "", string @default = "")
         {
-            _history = new List<string>();
-        }
+            context.Console.Write(prompt);
+            KeyHandler keyHandler = new KeyHandler(context.Console, context.History, context.AutoCompletionHandler);
+            string text = GetText(context.Console, keyHandler);
 
-        public static void AddHistory(params string[] text) => _history.AddRange(text);
-        public static List<string> GetHistory() => _history;
-        public static void ClearHistory() => _history = new List<string>();
-        public static bool HistoryEnabled { get; set; }
-        public static IAutoCompleteHandler? AutoCompletionHandler { private get; set; }
-
-        public static string Read(string prompt = "", string @default = "")
-        {
-            Console.Write(prompt);
-            KeyHandler keyHandler = new KeyHandler(new Console2(), _history, AutoCompletionHandler);
-            string text = GetText(keyHandler);
-
-            if (String.IsNullOrWhiteSpace(text) && !String.IsNullOrWhiteSpace(@default))
+            if (string.IsNullOrWhiteSpace(text) && !string.IsNullOrWhiteSpace(@default))
             {
                 text = @default;
             }
             else
             {
-                if (HistoryEnabled)
-                    _history.Add(text);
+                if (context.HistoryEnabled)
+                    context.History.Add(text);
             }
 
             return text;
         }
-
-        public static string ReadPassword(string prompt = "")
+        public static string ReadPassword(this ReadContext context, string prompt = "")
         {
-            Console.Write(prompt);
-            KeyHandler keyHandler = new KeyHandler(new Console2(), null, null);
-            return GetText(keyHandler);
+            context.Console.Write(prompt);
+            KeyHandler keyHandler = new KeyHandler(context.Console, null, null);
+            return GetText(context.Console, keyHandler);
         }
-
-        private static string GetText(KeyHandler keyHandler)
+        private static string GetText(IConsole console, KeyHandler keyHandler)
         {
-            ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+            ConsoleKeyInfo keyInfo = console.ReadKey();
             while (keyInfo.Key != ConsoleKey.Enter)
             {
                 keyHandler.Handle(keyInfo);
-                keyInfo = Console.ReadKey(true);
+                keyInfo = console.ReadKey();
             }
 
-            Console.WriteLine();
+            console.WriteLine();
             return keyHandler.Text;
         }
     }

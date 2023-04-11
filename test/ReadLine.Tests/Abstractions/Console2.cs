@@ -1,3 +1,4 @@
+using System;
 using Internal.ReadLine.Abstractions;
 
 namespace ReadLine.Tests.Abstractions
@@ -25,17 +26,12 @@ namespace ReadLine.Tests.Abstractions
             _bufferHeight = 100;
         }
 
-        public void SetBufferSize(int width, int height)
-        {
-            _bufferWidth = width;
-            _bufferHeight = height;
-        }
-
         public void SetCursorPosition(int left, int top)
         {
             _cursorLeft = left;
             _cursorTop = top;
         }
+        public ConsoleKeyInfo ReadKey() => new ConsoleKeyInfo();
 
         public void Write(string value)
         {

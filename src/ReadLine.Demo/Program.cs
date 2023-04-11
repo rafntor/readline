@@ -12,9 +12,9 @@ namespace ConsoleApplication
             Console.TreatControlCAsInput = true;
 
             string[] history = new string[] { "ls -a", "dotnet run", "git init" };
-            ReadLine.AddHistory(history);
+            ReadLine.Context.History.AddRange(history);
 
-            ReadLine.AutoCompletionHandler = new AutoCompletionHandler();
+            ReadLine.Context.AutoCompletionHandler = new AutoCompletionHandler();
 
             while (true)
             {
