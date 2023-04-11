@@ -12,10 +12,6 @@ namespace Internal.ReadLine.Abstractions
 
         public int BufferHeight => Console.BufferHeight;
 
-        public void SetCursorPosition(int left, int top)
-        {
-            Console.SetCursorPosition(left, top);
-        }
         public ConsoleKeyInfo ReadKey() => Console.ReadKey(true);
 
         public void Write(string value)

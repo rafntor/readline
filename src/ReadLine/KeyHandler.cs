@@ -23,15 +23,21 @@ namespace Internal.ReadLine
         private bool IsEndOfLine() => _cursorPos == _text.Length;
         private bool IsInAutoCompleteMode() => _completions.Count > 0;
 
+        private void SetCursorPosition(int left, int top)
+        {
+            var ansiSequence = EscapeSequence.SetPosition(left + 1, top + 1);
+            Console2.Write(ansiSequence);
+        }
+
         private void MoveCursorLeft()
         {
             if (IsStartOfLine())
                 return;
 
             if (Console2.CursorLeft == 0)
-                Console2.SetCursorPosition(Console2.BufferWidth - 1, Console2.CursorTop - 1);
+                SetCursorPosition(Console2.BufferWidth - 1, Console2.CursorTop - 1);
             else
-                Console2.SetCursorPosition(Console2.CursorLeft - 1, Console2.CursorTop);
+                SetCursorPosition(Console2.CursorLeft - 1, Console2.CursorTop);
 
             _cursorPos--;
         }
@@ -54,9 +60,9 @@ namespace Internal.ReadLine
                 return;
 
             if (Console2.CursorLeft == Console2.BufferWidth - 1)
-                Console2.SetCursorPosition(0, Console2.CursorTop + 1);
+                SetCursorPosition(0, Console2.CursorTop + 1);
             else
-                Console2.SetCursorPosition(Console2.CursorLeft + 1, Console2.CursorTop);
+                SetCursorPosition(Console2.CursorLeft + 1, Console2.CursorTop);
 
             _cursorPos++;
         }
@@ -104,7 +110,7 @@ namespace Internal.ReadLine
                 int top = Console2.CursorTop;
                 str_out += _text.ToString().Substring(_cursorPos);
                 _text.Insert(_cursorPos, c);
-                Console2.SetCursorPosition(left, top);
+                SetCursorPosition(left, top);
                 MoveCursorRight();
             }
 
@@ -126,7 +132,7 @@ namespace Internal.ReadLine
             int left = Console2.CursorLeft;
             int top = Console2.CursorTop;
             Console2.Write(string.Format("{0} ", replacement));
-            Console2.SetCursorPosition(left, top);
+            SetCursorPosition(left, top);
         }
 
         private void Delete()
@@ -140,7 +146,7 @@ namespace Internal.ReadLine
             int left = Console2.CursorLeft;
             int top = Console2.CursorTop;
             Console2.Write(string.Format("{0} ", replacement));
-            Console2.SetCursorPosition(left, top);
+            SetCursorPosition(left, top);
         }
 
         private void TransposeChars()
@@ -164,7 +170,7 @@ namespace Internal.ReadLine
 
             WriteNewString(_text.ToString());
 
-            Console2.SetCursorPosition(left, Console2.CursorTop);
+            SetCursorPosition(left, Console2.CursorTop);
             _cursorPos = cursorPosition;
 
             MoveCursorRight();
