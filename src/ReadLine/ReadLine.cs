@@ -1,4 +1,4 @@
-﻿using Internal.ReadLine;
+using Internal.ReadLine;
 using Internal.ReadLine.Abstractions;
 
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace System
         public static List<string> GetHistory() => _history;
         public static void ClearHistory() => _history = new List<string>();
         public static bool HistoryEnabled { get; set; }
-        public static IAutoCompleteHandler AutoCompletionHandler { private get; set; }
+        public static IAutoCompleteHandler? AutoCompletionHandler { private get; set; }
 
         public static string Read(string prompt = "", string @default = "")
         {

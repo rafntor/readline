@@ -14,13 +14,13 @@ namespace Internal.ReadLine
         private int _historyIndex;
         private ConsoleKeyInfo _keyInfo;
         private Dictionary<string, Action> _keyActions;
-        private string[] _completions;
+        private List<string> _completions = new();
         private int _completionStart;
         private int _completionsIndex;
         private IConsole Console2;
         private bool IsStartOfLine() => _cursorPos == 0;
         private bool IsEndOfLine() => _cursorPos == _text.Length;
-        private bool IsInAutoCompleteMode() => _completions != null;
+        private bool IsInAutoCompleteMode() => _completions.Count > 0;
 
         private void MoveCursorLeft()
         {
@@ -181,7 +181,7 @@ namespace Internal.ReadLine
 
             _completionsIndex++;
 
-            if (_completionsIndex == _completions.Length)
+            if (_completionsIndex == _completions.Count)
                 _completionsIndex = 0;
 
             WriteString(_completions[_completionsIndex]);
@@ -195,7 +195,7 @@ namespace Internal.ReadLine
             _completionsIndex--;
 
             if (_completionsIndex == -1)
-                _completionsIndex = _completions.Length - 1;
+                _completionsIndex = _completions.Count - 1;
 
             WriteString(_completions[_completionsIndex]);
         }
@@ -232,7 +232,7 @@ namespace Internal.ReadLine
 
         private void ResetAutoComplete()
         {
-            _completions = null;
+            _completions.Clear();
             _completionsIndex = 0;
         }
 
@@ -244,7 +244,7 @@ namespace Internal.ReadLine
             }
         }
 
-        public KeyHandler(IConsole console, List<string> history, IAutoCompleteHandler autoCompleteHandler)
+        public KeyHandler(IConsole console, List<string>? history, IAutoCompleteHandler? autoCompleteHandler)
         {
             Console2 = console;
 
@@ -325,13 +325,14 @@ namespace Internal.ReadLine
                     _completionStart = text.LastIndexOfAny(autoCompleteHandler.Separators);
                     _completionStart = _completionStart == -1 ? 0 : _completionStart + 1;
 
-                    _completions = autoCompleteHandler.GetSuggestions(text, _completionStart);
-                    _completions = _completions?.Length == 0 ? null : _completions;
+                    _completions.Clear();
+                    var suggestions = autoCompleteHandler.GetSuggestions(text, _completionStart);
 
-                    if (_completions == null)
-                        return;
+                    if (suggestions != null)
+                        _completions.AddRange(suggestions);
 
-                    StartAutoComplete();
+                    if (IsInAutoCompleteMode())
+                        StartAutoComplete();
                 }
             };
 
