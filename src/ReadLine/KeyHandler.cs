@@ -83,41 +83,37 @@ namespace Internal.ReadLine
         private void WriteNewString(string str)
         {
             ClearLine();
-            foreach (char character in str)
-                WriteChar(character);
+            WriteString(str);
         }
 
-        private void WriteString(string str)
+        private void WriteChar() => WriteString(_keyInfo.KeyChar.ToString());
+
+        private void WriteString(string c)
         {
-            foreach (char character in str)
-                WriteChar(character);
-        }
-
-        private void WriteChar() => WriteChar(_keyInfo.KeyChar);
-
-        private void WriteChar(char c)
-        {
-            var str_out = c.ToString();
-
             if (IsEndOfLine())
             {
                 _text.Append(c);
-                _cursorPos++;
+                ConsoleWrite(c);
+                _cursorPos += c.Length;
             }
             else
             {
                 int left = Console2.CursorLeft;
                 int top = Console2.CursorTop;
-                str_out += _text.ToString().Substring(_cursorPos);
+                string str = _text.ToString().Substring(_cursorPos);
                 _text.Insert(_cursorPos, c);
+                ConsoleWrite(c.ToString() + str);
                 SetCursorPosition(left, top);
-                MoveCursorRight();
+                for (int i = 0; i < c.Length; ++i)
+                    MoveCursorRight();
             }
-
+        }
+        private void ConsoleWrite(string str)
+        {
             if (_passwordMode)
-                Console2.Write(new string('*', str_out.Length));
+                Console2.Write(new string('*', str.Length));
             else
-                Console2.Write(str_out);
+                Console2.Write(str);
         }
 
         private void Backspace()
