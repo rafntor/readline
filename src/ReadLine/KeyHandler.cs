@@ -18,6 +18,7 @@ namespace Internal.ReadLine
         private List<string> _completions = new();
         private int _completionStart;
         private int _completionsIndex;
+        private bool _insertionMode;
         private bool _passwordMode;
         private IConsole Console2;
         private bool IsStartOfLine() => _cursorPos == 0;
@@ -112,12 +113,17 @@ namespace Internal.ReadLine
 
         private void WriteChar() => WriteString(_keyInfo.KeyChar.ToString());
 
-        private void WriteString(string c)
+        private void WriteString(string c) => WriteString(c, _insertionMode);
+        private void WriteString(string c, bool overwrite)
         {
-            string str = _text.ToString().Substring(_cursorPos);
+            string trailing = "";
+            if (overwrite)
+                _text.Remove(_cursorPos, Math.Min(c.Length, _text.Length - _cursorPos));
+            else
+                trailing = _text.ToString().Substring(_cursorPos);
             _text.Insert(_cursorPos, c);
-            ConsoleWrite(c + str, _passwordMode);
-            MoveCursorPos(-str.Length);
+            ConsoleWrite(c + trailing, _passwordMode);
+            MoveCursorPos(-trailing.Length);
             _cursorPos += c.Length;
         }
         private void ConsoleWrite(string str, bool passwordMode)
@@ -166,9 +172,10 @@ namespace Internal.ReadLine
             MoveCursorRight();
             var c2 = _text[_cursorPos - 1];
             var c1 = _text[_cursorPos - 2];
-            Backspace(2);
+            MoveCursorPos(-2);
+            _cursorPos -= 2;
 
-            WriteString($"{c2}{c1}");
+            WriteString($"{c2}{c1}", true);
         }
 
         private void StartAutoComplete()
@@ -380,6 +387,8 @@ namespace Internal.ReadLine
                     PreviousAutoComplete();
                 }
             };
+            _keyActions["ControlI"] = _keyActions["Tab"];
+            _keyActions["Insert"] = () => _insertionMode = !_insertionMode;
         }
 
         public void Handle(ConsoleKeyInfo keyInfo)
