@@ -160,29 +160,15 @@ namespace Internal.ReadLine
 
         private void TransposeChars()
         {
-            // local helper functions
-            bool almostEndOfLine() => (_text.Length - _cursorPos) == 1;
-            int incrementIf(Func<bool> expression, int index) =>  expression() ? index + 1 : index;
-            int decrementIf(Func<bool> expression, int index) => expression() ? index - 1 : index;
-
             if (IsStartOfLine()) { return; }
-
-            var firstIdx = decrementIf(IsEndOfLine, _cursorPos - 1);
-            var secondIdx = decrementIf(IsEndOfLine, _cursorPos);
-
-            var secondChar = _text[secondIdx];
-            _text[secondIdx] = _text[firstIdx];
-            _text[firstIdx] = secondChar;
-
-            var left = incrementIf(almostEndOfLine, _cursorLeft);
-            var cursorPosition = incrementIf(almostEndOfLine, _cursorPos);
-
-            WriteNewString(_text.ToString());
-
-            MoveCursorPos(left - _cursorLeft);
-            _cursorPos = cursorPosition;
+            if (_text.Length < 2) { return; }
 
             MoveCursorRight();
+            var c2 = _text[_cursorPos - 1];
+            var c1 = _text[_cursorPos - 2];
+            Backspace(2);
+
+            WriteString($"{c2}{c1}");
         }
 
         private void StartAutoComplete()
