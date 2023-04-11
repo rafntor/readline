@@ -1,8 +1,7 @@
 
 using System.Collections.Generic;
-using Internal.ReadLine.Abstractions;
 
-namespace System
+namespace ReadLine
 {
     public class ReadContext
     {

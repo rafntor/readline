@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Internal.ReadLine
+namespace ReadLine
 {
     internal static class EscapeSequence
     {

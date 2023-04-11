@@ -1,7 +1,7 @@
-using Internal.ReadLine;
-using Internal.ReadLine.Abstractions;
 
-namespace System
+using System;
+
+namespace ReadLine
 {
     public static class ReadLine
     {

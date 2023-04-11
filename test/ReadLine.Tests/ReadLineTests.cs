@@ -2,14 +2,12 @@ using System;
 using System.Linq;
 using Xunit;
 
-using static System.ReadLine;
-
 namespace ReadLine.Tests
 {
     public class ReadLineTests : IDisposable
     {
-        void AddHistory(params string[] history) => Context.History.AddRange(history);
-        System.Collections.Generic.List<string> GetHistory() => Context.History;
+        void AddHistory(params string[] history) => ReadLine.Context.History.AddRange(history);
+        System.Collections.Generic.List<string> GetHistory() => ReadLine.Context.History;
 
         public ReadLineTests()
         {
@@ -43,7 +41,7 @@ namespace ReadLine.Tests
         {
             // If all above tests pass
             // clear history works
-            Context.History.Clear();
+            ReadLine.Context.History.Clear();
         }
     }
 }
