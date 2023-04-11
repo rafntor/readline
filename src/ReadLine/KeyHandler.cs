@@ -102,8 +102,7 @@ namespace Internal.ReadLine
         private void ClearLine()
         {
             MoveCursorEnd();
-            while (!IsStartOfLine())
-                Backspace();
+            Backspace(_cursorPos);
         }
 
         private void WriteNewString(string str)
@@ -131,25 +130,33 @@ namespace Internal.ReadLine
             TrackCursorPos(str.Length);
         }
 
-        private void Backspace()
+        private void Backspace(int len)
         {
-            if (IsStartOfLine())
+            if (len > _cursorPos)
                 return;
 
-            MoveCursorLeft();
-            Delete();
+            MoveCursorPos(-len);
+            _cursorPos -= len;
+
+            Delete(len);
         }
 
-        private void Delete()
+        private void Delete(int len)
         {
             if (IsEndOfLine())
                 return;
 
             int index = _cursorPos;
-            _text.Remove(index, 1);
-            string replacement = _text.ToString().Substring(index);
-            ConsoleWrite($"{replacement} ", false);
-            MoveCursorPos(-(1+replacement.Length));
+
+            bool just_spaces = string.IsNullOrWhiteSpace(_text.ToString(index, len));
+            _text.Remove(index, len);
+
+            if (just_spaces)
+                return;
+
+            string replacement = _text.ToString().Substring(index) + new string(' ', len);
+            ConsoleWrite(replacement, false);
+            MoveCursorPos(-replacement.Length);
         }
 
         private void TransposeChars()
@@ -181,8 +188,7 @@ namespace Internal.ReadLine
 
         private void StartAutoComplete()
         {
-            while (_cursorPos > _completionStart)
-                Backspace();
+            Backspace(_cursorPos - _completionStart);
 
             _completionsIndex = 0;
 
@@ -191,8 +197,7 @@ namespace Internal.ReadLine
 
         private void NextAutoComplete()
         {
-            while (_cursorPos > _completionStart)
-                Backspace();
+            Backspace(_cursorPos - _completionStart);
 
             _completionsIndex++;
 
@@ -204,8 +209,7 @@ namespace Internal.ReadLine
 
         private void PreviousAutoComplete()
         {
-            while (_cursorPos > _completionStart)
-                Backspace();
+            Backspace(_cursorPos - _completionStart);
 
             _completionsIndex--;
 
@@ -279,10 +283,10 @@ namespace Internal.ReadLine
             _keyActions["RightArrow"] = MoveCursorRight;
             _keyActions["ControlF"] = MoveCursorRight;
             _keyActions["ControlE"] = MoveCursorEnd;
-            _keyActions["Backspace"] = Backspace;
-            _keyActions["Delete"] = Delete;
-            _keyActions["ControlD"] = Delete;
-            _keyActions["ControlH"] = Backspace;
+            _keyActions["Backspace"] = () => Backspace(1);
+            _keyActions["Delete"] = () => Delete(1);
+            _keyActions["ControlD"] = () => Delete(1);
+            _keyActions["ControlH"] = () => Backspace(1);
             _keyActions["ControlL"] = ClearLine;
             _keyActions["Escape"] = ClearLine;
             _keyActions["UpArrow"] = PrevHistory;
@@ -290,26 +294,32 @@ namespace Internal.ReadLine
             _keyActions["DownArrow"] = NextHistory;
             _keyActions["F3"] = FirstHistory;
             _keyActions["ControlN"] = NextHistory;
-            _keyActions["ControlU"] = () =>
-            {
-                while (!IsStartOfLine())
-                    Backspace();
-            };
-            _keyActions["ControlK"] = () =>
-            {
-                int pos = _cursorPos;
-                MoveCursorEnd();
-                while (_cursorPos > pos)
-                    Backspace();
-            };
+            _keyActions["ControlU"] = () => Backspace(_cursorPos);
+            _keyActions["ControlK"] = () => Delete(_text.Length - _cursorPos);
             _keyActions["ControlW"] = () =>
             {
-                while (!IsStartOfLine() && _text[_cursorPos - 1] != ' ')
-                    Backspace();
+                int pos = _cursorPos;
+
+                while (pos > 0 && _text[pos - 1] == ' ')
+                    pos--;
+                while (pos > 0 && _text[pos - 1] != ' ')
+                    pos--;
+
+                Backspace(_cursorPos - pos);
             };
             _keyActions["ControlHome"] = _keyActions["ControlU"];
             _keyActions["ControlEnd"] = _keyActions["ControlK"];
-            _keyActions["ControlBackspace"] = _keyActions["ControlW"];
+            _keyActions["ControlBackspace"] = () =>
+            {
+                int pos = _cursorPos;
+
+                bool space = pos > 0 && _text[pos - 1] == ' ';
+
+                while (pos > 0 && _text[pos - 1] == ' ' == space)
+                    pos--;
+
+                Backspace(_cursorPos - pos);
+            };
             _keyActions["ControlLeftArrow"] = () =>
             {
                 int pos = _cursorPos;
