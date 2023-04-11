@@ -78,8 +78,7 @@ namespace Internal.ReadLine
 
         private string BuildKeyInput()
         {
-            return (_keyInfo.Modifiers != ConsoleModifiers.Control && _keyInfo.Modifiers != ConsoleModifiers.Shift) ?
-                _keyInfo.Key.ToString() : _keyInfo.Modifiers.ToString() + _keyInfo.Key.ToString();
+            return (_keyInfo.Modifiers == default ? "" : _keyInfo.Modifiers.ToString()) + _keyInfo.Key.ToString();
         }
 
         private void MoveCursorRight()
@@ -346,7 +345,19 @@ namespace Internal.ReadLine
 
                 _cursorPos = pos;
             };
+            _keyActions["AltB"] = _keyActions["ControlLeftArrow"];
+            _keyActions["AltF"] = _keyActions["ControlRightArrow"];
+            _keyActions["AltD"] = () =>
+            {
+                int pos = _cursorPos;
 
+                while (pos < _text.Length && _text[pos] == ' ')
+                    ++pos;
+                while (pos < _text.Length && _text[pos] != ' ')
+                    ++pos;
+
+                Delete(pos - _cursorPos);
+            };
             _keyActions["ControlT"] = TransposeChars;
 
             _keyActions["Tab"] = () =>
