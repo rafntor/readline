@@ -101,8 +101,8 @@ namespace Internal.ReadLine
 
         private void ClearLine()
         {
-            MoveCursorEnd();
-            Backspace(_cursorPos);
+            MoveCursorHome();
+            Delete(_text.Length);
         }
 
         private void WriteNewString(string str)
