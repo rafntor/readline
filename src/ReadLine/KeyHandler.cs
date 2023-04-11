@@ -8,6 +8,7 @@ namespace Internal.ReadLine
 {
     internal class KeyHandler
     {
+        internal int _cursorLeft, _cursorTop;
         private int _cursorPos;
         private StringBuilder _text;
         private List<string> _history;
@@ -23,9 +24,38 @@ namespace Internal.ReadLine
         private bool IsEndOfLine() => _cursorPos == _text.Length;
         private bool IsInAutoCompleteMode() => _completions.Count > 0;
 
-        private void SetCursorPosition(int left, int top)
+        void TrackCursorPos(int len)
         {
-            var ansiSequence = EscapeSequence.SetPosition(left + 1, top + 1);
+            _cursorLeft += len;
+
+            while (_cursorLeft < 0)
+            {
+                _cursorLeft += Console2.BufferWidth;
+                _cursorTop -= 1;
+            }
+            while (_cursorLeft > Console2.BufferWidth)
+            {
+                _cursorLeft -= Console2.BufferWidth;
+                _cursorTop += 1;
+            }
+        }
+        void MoveCursorPos(int len)
+        {
+            var oldTop = _cursorTop;
+            var oldLeft = _cursorLeft;
+
+            TrackCursorPos(len);
+
+            string ansiSequence = "";
+
+            if (oldLeft != _cursorLeft)
+                ansiSequence = EscapeSequence.Column(_cursorLeft + 1);
+
+            if (oldTop > _cursorTop)
+                ansiSequence = EscapeSequence.Up(oldTop - _cursorTop);
+            else if (oldTop < _cursorTop)
+                ansiSequence = EscapeSequence.Down(_cursorTop - oldTop);
+
             Console2.Write(ansiSequence);
         }
 
@@ -34,10 +64,7 @@ namespace Internal.ReadLine
             if (IsStartOfLine())
                 return;
 
-            if (Console2.CursorLeft == 0)
-                SetCursorPosition(Console2.BufferWidth - 1, Console2.CursorTop - 1);
-            else
-                SetCursorPosition(Console2.CursorLeft - 1, Console2.CursorTop);
+            MoveCursorPos(-1);
 
             _cursorPos--;
         }
@@ -59,10 +86,7 @@ namespace Internal.ReadLine
             if (IsEndOfLine())
                 return;
 
-            if (Console2.CursorLeft == Console2.BufferWidth - 1)
-                SetCursorPosition(0, Console2.CursorTop + 1);
-            else
-                SetCursorPosition(Console2.CursorLeft + 1, Console2.CursorTop);
+            MoveCursorPos(1);
 
             _cursorPos++;
         }
@@ -90,30 +114,19 @@ namespace Internal.ReadLine
 
         private void WriteString(string c)
         {
-            if (IsEndOfLine())
-            {
-                _text.Append(c);
-                ConsoleWrite(c);
-                _cursorPos += c.Length;
-            }
-            else
-            {
-                int left = Console2.CursorLeft;
-                int top = Console2.CursorTop;
-                string str = _text.ToString().Substring(_cursorPos);
-                _text.Insert(_cursorPos, c);
-                ConsoleWrite(c.ToString() + str);
-                SetCursorPosition(left, top);
-                for (int i = 0; i < c.Length; ++i)
-                    MoveCursorRight();
-            }
+            string str = _text.ToString().Substring(_cursorPos);
+            _text.Insert(_cursorPos, c);
+            ConsoleWrite(c + str, _passwordMode);
+            MoveCursorPos(-str.Length);
+            _cursorPos += c.Length;
         }
-        private void ConsoleWrite(string str)
+        private void ConsoleWrite(string str, bool passwordMode)
         {
-            if (_passwordMode)
+            if (passwordMode)
                 Console2.Write(new string('*', str.Length));
             else
                 Console2.Write(str);
+            TrackCursorPos(str.Length);
         }
 
         private void Backspace()
@@ -122,13 +135,7 @@ namespace Internal.ReadLine
                 return;
 
             MoveCursorLeft();
-            int index = _cursorPos;
-            _text.Remove(index, 1);
-            string replacement = _text.ToString().Substring(index);
-            int left = Console2.CursorLeft;
-            int top = Console2.CursorTop;
-            Console2.Write(string.Format("{0} ", replacement));
-            SetCursorPosition(left, top);
+            Delete();
         }
 
         private void Delete()
@@ -139,10 +146,8 @@ namespace Internal.ReadLine
             int index = _cursorPos;
             _text.Remove(index, 1);
             string replacement = _text.ToString().Substring(index);
-            int left = Console2.CursorLeft;
-            int top = Console2.CursorTop;
-            Console2.Write(string.Format("{0} ", replacement));
-            SetCursorPosition(left, top);
+            ConsoleWrite($"{replacement} ", false);
+            MoveCursorPos(-(1+replacement.Length));
         }
 
         private void TransposeChars()
@@ -161,12 +166,12 @@ namespace Internal.ReadLine
             _text[secondIdx] = _text[firstIdx];
             _text[firstIdx] = secondChar;
 
-            var left = incrementIf(almostEndOfLine, Console2.CursorLeft);
+            var left = incrementIf(almostEndOfLine, _cursorLeft);
             var cursorPosition = incrementIf(almostEndOfLine, _cursorPos);
 
             WriteNewString(_text.ToString());
 
-            SetCursorPosition(left, Console2.CursorTop);
+            MoveCursorPos(left - _cursorLeft);
             _cursorPos = cursorPosition;
 
             MoveCursorRight();
@@ -252,9 +257,11 @@ namespace Internal.ReadLine
             }
         }
 
-        public KeyHandler(IConsole console, List<string>? history, IAutoCompleteHandler? autoCompleteHandler)
+        public KeyHandler(string prompt, IConsole console, List<string>? history, IAutoCompleteHandler? autoCompleteHandler)
         {
             Console2 = console;
+
+            ConsoleWrite(prompt, false);
 
             _passwordMode = history == null; // history always initiated unless password mode
             _history = history ?? new List<string>();
