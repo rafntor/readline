@@ -71,8 +71,9 @@ namespace Internal.ReadLine
 
         private void MoveCursorHome()
         {
-            while (!IsStartOfLine())
-                MoveCursorLeft();
+            MoveCursorPos(-_cursorPos);
+
+            _cursorPos = 0;
         }
 
         private string BuildKeyInput()
@@ -93,8 +94,9 @@ namespace Internal.ReadLine
 
         private void MoveCursorEnd()
         {
-            while (!IsEndOfLine())
-                MoveCursorRight();
+            MoveCursorPos(_text.Length - _cursorPos);
+
+            _cursorPos = _text.Length;
         }
 
         private void ClearLine()
@@ -310,17 +312,29 @@ namespace Internal.ReadLine
             _keyActions["ControlBackspace"] = _keyActions["ControlW"];
             _keyActions["ControlLeftArrow"] = () =>
             {
-                while (!IsStartOfLine() && _text[_cursorPos - 1] == ' ')
-                    MoveCursorLeft();
-                while (!IsStartOfLine() && _text[_cursorPos - 1] != ' ')
-                    MoveCursorLeft();
+                int pos = _cursorPos;
+
+                while (pos > 0 && _text[pos - 1] == ' ')
+                    pos--;
+                while (pos > 0 && _text[pos - 1] != ' ')
+                    pos--;
+
+                MoveCursorPos(pos - _cursorPos);
+
+                _cursorPos = pos;
             };
             _keyActions["ControlRightArrow"] = () =>
             {
-                while (!IsEndOfLine() && _text[_cursorPos] != ' ')
-                    MoveCursorRight();
-                while (!IsEndOfLine() && _text[_cursorPos] == ' ')
-                    MoveCursorRight();
+                int pos = _cursorPos;
+
+                while (pos < _text.Length && _text[pos] != ' ')
+                    ++pos;
+                while (pos < _text.Length && _text[pos] == ' ')
+                    ++pos;
+
+                MoveCursorPos(pos - _cursorPos);
+
+                _cursorPos = pos;
             };
 
             _keyActions["ControlT"] = TransposeChars;
