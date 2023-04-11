@@ -12,21 +12,13 @@ namespace Internal.ReadLine.Abstractions
 
         public int BufferHeight => Console.BufferHeight;
 
-        public bool PasswordMode { get; set; }
-
-        public void SetBufferSize(int width, int height) => Console.SetBufferSize(width, height);
-
         public void SetCursorPosition(int left, int top)
         {
-            if (!PasswordMode)
-                Console.SetCursorPosition(left, top);
+            Console.SetCursorPosition(left, top);
         }
 
         public void Write(string value)
         {
-            if (PasswordMode)
-                value = new String(default(char), value.Length);
-
             Console.Write(value);
         }
 

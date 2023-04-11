@@ -17,6 +17,7 @@ namespace Internal.ReadLine
         private List<string> _completions = new();
         private int _completionStart;
         private int _completionsIndex;
+        private bool _passwordMode;
         private IConsole Console2;
         private bool IsStartOfLine() => _cursorPos == 0;
         private bool IsEndOfLine() => _cursorPos == _text.Length;
@@ -90,22 +91,27 @@ namespace Internal.ReadLine
 
         private void WriteChar(char c)
         {
+            var str_out = c.ToString();
+
             if (IsEndOfLine())
             {
                 _text.Append(c);
-                Console2.Write(c.ToString());
                 _cursorPos++;
             }
             else
             {
                 int left = Console2.CursorLeft;
                 int top = Console2.CursorTop;
-                string str = _text.ToString().Substring(_cursorPos);
+                str_out += _text.ToString().Substring(_cursorPos);
                 _text.Insert(_cursorPos, c);
-                Console2.Write(c.ToString() + str);
                 Console2.SetCursorPosition(left, top);
                 MoveCursorRight();
             }
+
+            if (_passwordMode)
+                Console2.Write(new string('*', str_out.Length));
+            else
+                Console2.Write(str_out);
         }
 
         private void Backspace()
@@ -248,6 +254,7 @@ namespace Internal.ReadLine
         {
             Console2 = console;
 
+            _passwordMode = history == null; // history always initiated unless password mode
             _history = history ?? new List<string>();
             _historyIndex = _history.Count;
             _text = new StringBuilder();

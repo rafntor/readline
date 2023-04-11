@@ -42,7 +42,7 @@ namespace System
         public static string ReadPassword(string prompt = "")
         {
             Console.Write(prompt);
-            KeyHandler keyHandler = new KeyHandler(new Console2() { PasswordMode = true }, null, null);
+            KeyHandler keyHandler = new KeyHandler(new Console2(), null, null);
             return GetText(keyHandler);
         }
 
