@@ -26,7 +26,7 @@ namespace ReadLine.Tests
             _history = new List<string>(new string[] { "dotnet run", "git init", "clear" });
 
             _console = new Console2();
-            _keyHandler = new KeyHandler(_console, _history, null);
+            _keyHandler = new KeyHandler(">", _console, _history, null);
 
             "Hello".Select(c => c.ToConsoleKeyInfo())
                     .ToList()
@@ -78,23 +78,23 @@ namespace ReadLine.Tests
         [Fact]
         public void TestControlT()
         {
-            var initialCursorCol = _console.CursorLeft;
+            var initialCursorCol = _keyHandler._cursorLeft;
             _keyHandler.Handle(CtrlT);
 
             Assert.Equal("Helol", _keyHandler.Text);
-            Assert.Equal(initialCursorCol, _console.CursorLeft);
+            Assert.Equal(initialCursorCol, _keyHandler._cursorLeft);
         }
 
         [Fact]
         public void TestControlT_LeftOnce_CursorMovesToEnd()
         {
-            var initialCursorCol = _console.CursorLeft;
+            var initialCursorCol = _keyHandler._cursorLeft;
 
             new List<ConsoleKeyInfo>() { LeftArrow, CtrlT }
                 .ForEach(_keyHandler.Handle);
             
             Assert.Equal("Helol", _keyHandler.Text);
-            Assert.Equal(initialCursorCol, _console.CursorLeft);
+            Assert.Equal(initialCursorCol, _keyHandler._cursorLeft);
         }
 
         [Fact]
@@ -105,12 +105,12 @@ namespace ReadLine.Tests
                 .ToList()
                 .ForEach(_keyHandler.Handle);
 
-            var initialCursorCol = _console.CursorLeft;
+            var initialCursorCol = _keyHandler._cursorLeft;
 
             _keyHandler.Handle(CtrlT);
 
             Assert.Equal("Hlelo", _keyHandler.Text);
-            Assert.Equal(initialCursorCol + 1, _console.CursorLeft);
+            Assert.Equal(initialCursorCol + 1, _keyHandler._cursorLeft);
         }
 
         [Fact]
@@ -118,12 +118,12 @@ namespace ReadLine.Tests
         {
             _keyHandler.Handle(CtrlA);
 
-            var initialCursorCol = _console.CursorLeft;
+            var initialCursorCol = _keyHandler._cursorLeft;
 
             _keyHandler.Handle(CtrlT);
 
             Assert.Equal("Hello", _keyHandler.Text);
-            Assert.Equal(initialCursorCol, _console.CursorLeft);
+            Assert.Equal(initialCursorCol, _keyHandler._cursorLeft);
         }
 
         [Fact]
@@ -315,7 +315,7 @@ namespace ReadLine.Tests
             // Nothing happens when no auto complete handler is set
             Assert.Equal("Hello", _keyHandler.Text);
 
-            _keyHandler = new KeyHandler(new Console2(), _history, _autoCompleteHandler);
+            _keyHandler = new KeyHandler(">", new Console2(), _history, _autoCompleteHandler);
 
             "Hi ".Select(c => c.ToConsoleKeyInfo()).ToList().ForEach(_keyHandler.Handle);
 
@@ -333,7 +333,7 @@ namespace ReadLine.Tests
             // Nothing happens when no auto complete handler is set
             Assert.Equal("Hello", _keyHandler.Text);
 
-            _keyHandler = new KeyHandler(new Console2(), _history, _autoCompleteHandler);
+            _keyHandler = new KeyHandler(">", new Console2(), _history, _autoCompleteHandler);
 
             "Hi ".Select(c => c.ToConsoleKeyInfo()).ToList().ForEach(_keyHandler.Handle);
 

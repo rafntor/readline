@@ -4,8 +4,6 @@ namespace Internal.ReadLine.Abstractions
 {
     public interface IConsole
     {
-        int CursorLeft { get; }
-        int CursorTop { get; }
         int BufferWidth { get; }
         int BufferHeight { get; }
         ConsoleKeyInfo ReadKey();

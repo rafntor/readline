@@ -12,8 +12,7 @@ namespace System
 
         public static string Read(this ReadContext context, string prompt = "", string @default = "")
         {
-            context.Console.Write(prompt);
-            KeyHandler keyHandler = new KeyHandler(context.Console, context.History, context.AutoCompletionHandler);
+            KeyHandler keyHandler = new KeyHandler(prompt, context.Console, context.History, context.AutoCompletionHandler);
             string text = GetText(context.Console, keyHandler);
 
             if (string.IsNullOrWhiteSpace(text) && !string.IsNullOrWhiteSpace(@default))
@@ -30,8 +29,7 @@ namespace System
         }
         public static string ReadPassword(this ReadContext context, string prompt = "")
         {
-            context.Console.Write(prompt);
-            KeyHandler keyHandler = new KeyHandler(context.Console, null, null);
+            KeyHandler keyHandler = new KeyHandler(prompt, context.Console, null, null);
             return GetText(context.Console, keyHandler);
         }
         private static string GetText(IConsole console, KeyHandler keyHandler)
