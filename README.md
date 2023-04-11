@@ -1,12 +1,17 @@
-[![Windows build status](https://ci.appveyor.com/api/projects/status/github/tonerdo/readline?branch=master&svg=true)](https://ci.appveyor.com/project/tonerdo/readline)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![NuGet version](https://badge.fury.io/nu/ReadLine.svg)](https://www.nuget.org/packages/ReadLine)
-# ReadLine
+[![NuGet](https://img.shields.io/nuget/v/rafntor.ReadLine)](https://www.nuget.org/packages/rafntor.ReadLine/)
+[![License](https://img.shields.io/github/license/rafntor/readline)](LICENSE)
+# ReadLine.Ext
+
+This library is an enhanced clone of [tonerdo/readline](https://github.com/tonerdo/readline) that adds the following extras ;
+- Allows ReadLine to be used not only with the default `System.Console` but also any user-supplied virtual console that extends [`ReadLine.IConsole`]().
+- The library adds a supporting class [`ReadLine.KeyParser`]() that can parse Ansi/VT-100 escapecodes into `System.ConsoleKeyInfo` to make it easy to implement custom `IConsole` classes. The `KeyParser` is an embedded copy of the implementation used in [System.Console](https://github.com/dotnet/runtime/tree/main/src/libraries/System.Console/src/System) (net7.0 version).
+- The library is cross platform but requires net7.0 or greater.
+
+---
+
 
 ReadLine is a [GNU Readline](https://en.wikipedia.org/wiki/GNU_Readline) like library built in pure C#. It can serve as a drop in replacement for the inbuilt `Console.ReadLine()` and brings along
 with it some of the terminal goodness you get from unix shells, like command history navigation and tab auto completion.
-
-It is cross platform and runs anywhere .NET is supported, targeting `netstandard1.3` means that it can be used with .NET Core as well as the full .NET Framework.
 
 ## Shortcut Guide
 
@@ -34,7 +39,7 @@ It is cross platform and runs anywhere .NET is supported, targeting `netstandard
 
 ## Installation
 
-Available on [NuGet](https://www.nuget.org/packages/ReadLine/)
+Available on [NuGet](https://www.nuget.org/packages/rafntor.ReadLine/)
 
 Visual Studio:
 
@@ -63,22 +68,37 @@ string input = ReadLine.Read("(prompt)> ");
 string password = ReadLine.ReadPassword("(prompt)> ");
 ```
 
+### Read input from custom console
+
+```csharp
+class MyConsole : IConsole { ... };
+var console = new MyConsole();
+string input = console.Read("(prompt)> ");
+```
+
 _Note: The `(prompt>)` is  optional_
+
+### Convert char[] to ConsoleKeyInfo[]
+
+```csharp
+char [] input = ... ;
+ConsoleKeyInfo[] keys = ReadLine.KeyParser.Parse(input);
+```
 
 ### History management
 
 ```csharp
 // Get command history
-ReadLine.GetHistory();
+var history = ReadLine.Context.History;
 
 // Add command to history
-ReadLine.AddHistory("dotnet run");
+ReadLine.Context.History.Add("dotnet run");
 
 // Clear history
-ReadLine.ClearHistory();
+ReadLine.Context.History.Clear();
 
 // Disable history
-ReadLine.HistoryEnabled = false;
+ReadLine.Context.HistoryEnabled = false;
 ```
 
 _Note: History information is persisted for an entire application session. Also, calls to `ReadLine.Read()` automatically adds the console input to history_
