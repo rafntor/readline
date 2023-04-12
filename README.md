@@ -5,8 +5,8 @@
 [![License](https://img.shields.io/github/license/rafntor/readline.ext)](LICENSE)
 
 This library is an enhanced clone of [tonerdo/readline](https://github.com/tonerdo/readline) that adds the following extras ;
-- Allows ReadLine to be used not only with the default `System.Console` but also any user-supplied virtual console that extends [`ReadLine.IConsole`]().
-- The library adds a supporting class [`ReadLine.KeyParser`]() that can parse Ansi/VT-100 escapecodes into `System.ConsoleKeyInfo` to make it easy to implement custom `IConsole` classes. The `KeyParser` is an embedded copy of the implementation used in [System.Console](https://github.com/dotnet/runtime/tree/main/src/libraries/System.Console/src/System) (net7.0 version).
+- Allows ReadLine to be used not only with the default `System.Console` but also any user-supplied virtual console that extends [`ReadLine.IConsole`](./src/ReadLine/Abstractions/IConsole.cs).
+- The library adds a supporting class [`ReadLine.KeyParser`](./src/ReadLine/KeyParser.cs) that can parse Ansi/VT-100 escapecodes into `System.ConsoleKeyInfo` to make it easy to implement custom `IConsole` classes. The `KeyParser` uses an embedded copy from the implementation used in [System.Console](https://github.com/dotnet/runtime/tree/main/src/libraries/System.Console/src/System) (net7.0 version).
 - The library is cross platform but requires net7.0 or greater.
 
 ---
