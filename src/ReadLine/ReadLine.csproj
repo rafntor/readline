@@ -8,8 +8,8 @@
     <AssemblyName>ReadLine</AssemblyName>
     <PackageId>ReadLine.Ext</PackageId>
     <PackageTags>readline;gnu;console;shell;terminal;ansi;vt100;keyparser;consolekeyinfo</PackageTags>
-    <PackageProjectUrl>https://github.com/rafntor/readline</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/rafntor/readline</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/rafntor/readline.ext</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rafntor/readline.ext</RepositoryUrl>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
