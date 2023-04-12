@@ -19,6 +19,7 @@ namespace ReadLine
         private int _completionsIndex;
         private bool _insertionMode;
         private bool _passwordMode;
+        private bool _terminated = false;
         private IConsole Console2;
         private bool IsStartOfLine() => _cursorPos == 0;
         private bool IsEndOfLine() => _cursorPos == _text.Length;
@@ -246,11 +247,11 @@ namespace ReadLine
             _completionsIndex = 0;
         }
 
-        public string Text
+        public string? Text
         {
             get
             {
-                return _text.ToString();
+                return _terminated ? null : _text.ToString();
             }
         }
 
@@ -388,6 +389,8 @@ namespace ReadLine
             };
             _keyActions["ControlI"] = _keyActions["Tab"];
             _keyActions["Insert"] = () => _insertionMode = !_insertionMode;
+            _keyActions["ControlC"] = () => { _terminated = true; };
+            _keyActions["ControlZ"] = () => { _terminated = true; };
         }
 
         public void Handle(ConsoleKeyInfo keyInfo)
@@ -398,7 +401,7 @@ namespace ReadLine
             if (IsInAutoCompleteMode() && _keyInfo.Key != ConsoleKey.Tab)
                 ResetAutoComplete();
 
-            Action action;
+            Action? action = null;
             _keyActions.TryGetValue(BuildKeyInput(), out action);
             action = action ?? WriteChar;
             action.Invoke();

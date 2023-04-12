@@ -7,17 +7,18 @@ namespace ReadLine
     {
         private static ReadContext _context = new();
         public static ReadContext Context => _context;
-        public static string Read(string prompt = "", string @default = "") => Read(Context, prompt, @default);
-        public static string ReadPassword(string prompt = "") => ReadPassword(Context, prompt);
+        public static string? Read(string prompt = "", string @default = "") => Read(Context, prompt, @default);
+        public static string? ReadPassword(string prompt = "") => ReadPassword(Context, prompt);
 
-        public static string Read(this ReadContext context, string prompt = "", string @default = "")
+        public static string? Read(this ReadContext context, string prompt = "", string @default = "")
         {
             KeyHandler keyHandler = new KeyHandler(prompt, context.Console, context.History, context.AutoCompletionHandler);
-            string text = GetText(context.Console, keyHandler);
+            string? text = GetText(context.Console, keyHandler);
 
-            if (string.IsNullOrWhiteSpace(text) && !string.IsNullOrWhiteSpace(@default))
+            if (string.IsNullOrWhiteSpace(text))
             {
-                text = @default;
+                if (!string.IsNullOrWhiteSpace(@default))
+                    text = @default;
             }
             else
             {
@@ -27,17 +28,21 @@ namespace ReadLine
 
             return text;
         }
-        public static string ReadPassword(this ReadContext context, string prompt = "")
+        public static string? ReadPassword(this ReadContext context, string prompt = "")
         {
             KeyHandler keyHandler = new KeyHandler(prompt, context.Console, null, null);
             return GetText(context.Console, keyHandler);
         }
-        private static string GetText(IConsole console, KeyHandler keyHandler)
+        private static string? GetText(IConsole console, KeyHandler keyHandler)
         {
             ConsoleKeyInfo keyInfo = console.ReadKey();
             while (keyInfo.Key != ConsoleKey.Enter)
             {
                 keyHandler.Handle(keyInfo);
+
+                if (keyHandler.Text is null)
+                    break;
+
                 keyInfo = console.ReadKey();
             }
 
