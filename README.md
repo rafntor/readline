@@ -1,6 +1,8 @@
-[![NuGet](https://img.shields.io/nuget/v/rafntor.ReadLine)](https://www.nuget.org/packages/rafntor.ReadLine/)
-[![License](https://img.shields.io/github/license/rafntor/readline)](LICENSE)
 # ReadLine.Ext
+
+[![Build](https://github.com/rafntor/readline.ext/actions/workflows/build.yml/badge.svg)](https://github.com/rafntor/readline.ext/actions/workflows/build.yml)
+[![NuGet](https://img.shields.io/nuget/v/ReadLine.Ext)](https://www.nuget.org/packages/ReadLine.Ext/)
+[![License](https://img.shields.io/github/license/rafntor/readline.ext)](LICENSE)
 
 This library is an enhanced clone of [tonerdo/readline](https://github.com/tonerdo/readline) that adds the following extras ;
 - Allows ReadLine to be used not only with the default `System.Console` but also any user-supplied virtual console that extends [`ReadLine.IConsole`]().

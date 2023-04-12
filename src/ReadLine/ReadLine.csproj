@@ -2,21 +2,33 @@
 
   <PropertyGroup>
     <AssemblyTitle>ReadLine</AssemblyTitle>
-    <AssemblyDescription>A GNU-Readline like library for .NET/.NET Core</AssemblyDescription>
-    <AssemblyVersion>2.0.1</AssemblyVersion>
-    <Authors>Toni Solarin-Sodara</Authors>
+    <AssemblyDescription>A GNU-Readline like library for .NET</AssemblyDescription>
+    <Authors>Toni Solarin-Sodara, Tore Fuglestad, .NET Foundation and Contributors</Authors>
     <TargetFramework>net7.0</TargetFramework>
-    <DebugType>portable</DebugType>
     <AssemblyName>ReadLine</AssemblyName>
-    <PackageId>ReadLine</PackageId>
-    <PackageVersion>$(AssemblyVersion)</PackageVersion>
-    <PackageTags>readline;gnu;console;shell;cui</PackageTags>
-    <PackageProjectUrl>https://github.com/tonerdo/readline</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/tonerdo/readline/blob/master/LICENSE</PackageLicenseUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/tonerdo/readline</RepositoryUrl>
+    <PackageId>ReadLine.Ext</PackageId>
+    <PackageTags>readline;gnu;console;shell;terminal;ansi;vt100;keyparser;consolekeyinfo</PackageTags>
+    <PackageProjectUrl>https://github.com/rafntor/readline</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rafntor/readline</RepositoryUrl>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Title>ReadLine</Title>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinVer" Version="4.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
 </Project>
