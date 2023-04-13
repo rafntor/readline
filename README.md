@@ -63,6 +63,7 @@ dotnet add package ReadLine
 ```csharp
 string input = ReadLine.Read("(prompt)> ");
 ```
+_Note: The `(prompt>)` is  optional_
 
 ### Read password from the console
 
@@ -70,15 +71,14 @@ string input = ReadLine.Read("(prompt)> ");
 string password = ReadLine.ReadPassword("(prompt)> ");
 ```
 
-### Read input from custom console
+### Read input from custom context/console
 
 ```csharp
 class MyConsole : IConsole { ... };
-var console = new MyConsole();
-string input = console.Read("(prompt)> ");
+var context = new ReadContext { Console = new MyConsole() };
+var input = context.Read("(prompt)> ");
 ```
-
-_Note: The `(prompt>)` is  optional_
+`ReadContext` defines the Console, Command-History and Auto-Completion to use.
 
 ### Convert char[] to ConsoleKeyInfo[]
 
