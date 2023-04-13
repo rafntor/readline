@@ -57,7 +57,8 @@ namespace ReadLine
             else if (oldTop < _cursorTop)
                 ansiSequence = EscapeSequence.Down(_cursorTop - oldTop);
 
-            Console2.Write(ansiSequence);
+            if (ansiSequence.Length > 0)
+                Console2.Write(ansiSequence);
         }
 
         private void MoveCursorLeft()
@@ -128,11 +129,15 @@ namespace ReadLine
         }
         private void ConsoleWrite(string str, bool passwordMode)
         {
-            if (passwordMode)
-                Console2.Write(new string('*', str.Length));
-            else
-                Console2.Write(str);
-            TrackCursorPos(str.Length);
+            if (str.Length > 0)
+            {
+                if (passwordMode)
+                    Console2.Write(new string('*', str.Length));
+                else
+                    Console2.Write(str);
+
+                TrackCursorPos(str.Length);
+            }
         }
 
         private void Backspace(int len)
