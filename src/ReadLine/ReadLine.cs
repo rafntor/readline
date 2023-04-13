@@ -46,7 +46,7 @@ namespace ReadLine
                 keyInfo = console.ReadKey();
             }
 
-            console.WriteLine();
+            console.Write(Environment.NewLine);
             return keyHandler.Text;
         }
     }

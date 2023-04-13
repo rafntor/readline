@@ -14,7 +14,5 @@ namespace ReadLine
         {
             Console.Write(value);
         }
-
-        public void WriteLine(string value) => Console.WriteLine(value);
     }
 }

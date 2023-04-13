@@ -8,6 +8,5 @@ namespace ReadLine
         int BufferHeight { get; }
         ConsoleKeyInfo ReadKey();
         void Write(string value);
-        void WriteLine(string value = "");
     }
 }
