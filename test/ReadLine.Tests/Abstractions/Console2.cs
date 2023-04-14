@@ -26,5 +26,11 @@ namespace ReadLine.Tests
         {
             _cursorLeft += value.Length;
         }
+
+        public void WriteLine(string value)
+        {
+            _cursorLeft += value.Length;
+            _cursorTop += 1;
+        }
     }
 }
