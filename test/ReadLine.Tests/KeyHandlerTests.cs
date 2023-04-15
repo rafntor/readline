@@ -75,23 +75,23 @@ namespace ReadLine.Tests
         [Fact]
         public void TestControlT()
         {
-            var initialCursorCol = _keyHandler._cursorLeft;
+            var initialCursorCol = _keyHandler._cursorPos;
             _keyHandler.Handle(CtrlT);
 
             Assert.Equal("Helol", _keyHandler.Text);
-            Assert.Equal(initialCursorCol, _keyHandler._cursorLeft);
+            Assert.Equal(initialCursorCol, _keyHandler._cursorPos);
         }
 
         [Fact]
         public void TestControlT_LeftOnce_CursorMovesToEnd()
         {
-            var initialCursorCol = _keyHandler._cursorLeft;
+            var initialCursorCol = _keyHandler._cursorPos;
 
             new List<ConsoleKeyInfo>() { LeftArrow, CtrlT }
                 .ForEach(_keyHandler.Handle);
             
             Assert.Equal("Helol", _keyHandler.Text);
-            Assert.Equal(initialCursorCol, _keyHandler._cursorLeft);
+            Assert.Equal(initialCursorCol, _keyHandler._cursorPos);
         }
 
         [Fact]
@@ -102,12 +102,12 @@ namespace ReadLine.Tests
                 .ToList()
                 .ForEach(_keyHandler.Handle);
 
-            var initialCursorCol = _keyHandler._cursorLeft;
+            var initialCursorCol = _keyHandler._cursorPos;
 
             _keyHandler.Handle(CtrlT);
 
             Assert.Equal("Hlelo", _keyHandler.Text);
-            Assert.Equal(initialCursorCol + 1, _keyHandler._cursorLeft);
+            Assert.Equal(initialCursorCol + 1, _keyHandler._cursorPos);
         }
 
         [Fact]
@@ -115,12 +115,12 @@ namespace ReadLine.Tests
         {
             _keyHandler.Handle(CtrlA);
 
-            var initialCursorCol = _keyHandler._cursorLeft;
+            var initialCursorCol = _keyHandler._cursorPos;
 
             _keyHandler.Handle(CtrlT);
 
             Assert.Equal("Hello", _keyHandler.Text);
-            Assert.Equal(initialCursorCol, _keyHandler._cursorLeft);
+            Assert.Equal(initialCursorCol, _keyHandler._cursorPos);
         }
 
         [Fact]

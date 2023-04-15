@@ -7,8 +7,7 @@ namespace ReadLine
 {
     internal class KeyHandler
     {
-        internal int _cursorLeft;
-        private int _cursorPos;
+        internal int _cursorPos;
         private StringBuilder _text;
         private List<string> _history;
         private int _historyIndex;
@@ -25,22 +24,9 @@ namespace ReadLine
         private bool IsEndOfLine() => _cursorPos == _text.Length;
         private bool IsInAutoCompleteMode() => _completions.Count > 0;
 
-        void TrackCursorPos(int len)
-        {
-            _cursorLeft += len;
-
-            if (_cursorLeft < 0)
-                System.Diagnostics.Debugger.Break();
-
-            _cursorLeft = Math.Max(_cursorLeft, 0);
-        }
         void MoveCursorPos(int len)
         {
-            var oldLeft = _cursorLeft;
-
-            TrackCursorPos(len);
-
-            Console2.CursorAdvance(_cursorLeft - oldLeft);
+            Console2.CursorAdvance(len);
         }
 
         private void MoveCursorLeft()
@@ -117,8 +103,6 @@ namespace ReadLine
                     Console2.Write(new string('*', str.Length));
                 else
                     Console2.Write(str);
-
-                TrackCursorPos(str.Length);
             }
         }
 
