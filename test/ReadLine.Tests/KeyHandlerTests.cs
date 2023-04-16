@@ -11,19 +11,19 @@ namespace ReadLine.Tests
     public class KeyHandlerTests
     {
         private KeyHandler _keyHandler;
-        private List<string> _history;
         private AutoCompleteHandler _autoCompleteHandler;
         private string[] _completions;
-        private IConsole _console;
+        private ReadContext _context;
 
         public KeyHandlerTests()
         {
             _autoCompleteHandler = new AutoCompleteHandler();
             _completions = _autoCompleteHandler.GetSuggestions("", 0);
-            _history = new List<string>(new string[] { "dotnet run", "git init", "clear" });
 
-            _console = new Console2();
-            _keyHandler = new KeyHandler(">", _console, _history, null);
+            _context = new ReadContext() { Console = new Console2() };
+            _context.History.AddRange(new string[] { "dotnet run", "git init", "clear" });
+
+            _keyHandler = new KeyHandler(">", _context, false);
 
             "Hello".Select(c => c.ToConsoleKeyInfo())
                     .ToList()
@@ -220,7 +220,7 @@ namespace ReadLine.Tests
         [Fact]
         public void TestUpArrow()
         {
-            _history.AsEnumerable().Reverse().ToList().ForEach((history) => {
+            _context.History.AsEnumerable().Reverse().ToList().ForEach((history) => {
                 _keyHandler.Handle(UpArrow);
                 Assert.Equal(history, _keyHandler.Text);
             });
@@ -229,7 +229,7 @@ namespace ReadLine.Tests
         [Fact]
         public void TestControlP()
         {
-            _history.AsEnumerable().Reverse().ToList().ForEach((history) => {
+            _context.History.AsEnumerable().Reverse().ToList().ForEach((history) => {
                 _keyHandler.Handle(CtrlP);
                 Assert.Equal(history, _keyHandler.Text);
             });
@@ -238,11 +238,11 @@ namespace ReadLine.Tests
         [Fact]
         public void TestDownArrow()
         {
-            Enumerable.Repeat(UpArrow, _history.Count)
+            Enumerable.Repeat(UpArrow, _context.History.Count)
                     .ToList()
                     .ForEach(_keyHandler.Handle);
 
-            _history.ForEach( history => {
+            _context.History.ForEach( history => {
                 Assert.Equal(history, _keyHandler.Text);
                 _keyHandler.Handle(DownArrow);
             });
@@ -251,11 +251,11 @@ namespace ReadLine.Tests
         [Fact]
         public void TestControlN()
         {
-            Enumerable.Repeat(UpArrow, _history.Count)
+            Enumerable.Repeat(UpArrow, _context.History.Count)
                     .ToList()
                     .ForEach(_keyHandler.Handle);
 
-            _history.ForEach( history => {
+            _context.History.ForEach( history => {
                 Assert.Equal(history, _keyHandler.Text);
                 _keyHandler.Handle(CtrlN);
             });
@@ -312,7 +312,8 @@ namespace ReadLine.Tests
             // Nothing happens when no auto complete handler is set
             Assert.Equal("Hello", _keyHandler.Text);
 
-            _keyHandler = new KeyHandler(">", new Console2(), _history, _autoCompleteHandler);
+            _context.AutoCompletionHandler = _autoCompleteHandler;
+            _keyHandler = new KeyHandler(">", _context, false);
 
             "Hi ".Select(c => c.ToConsoleKeyInfo()).ToList().ForEach(_keyHandler.Handle);
 
@@ -330,7 +331,8 @@ namespace ReadLine.Tests
             // Nothing happens when no auto complete handler is set
             Assert.Equal("Hello", _keyHandler.Text);
 
-            _keyHandler = new KeyHandler(">", new Console2(), _history, _autoCompleteHandler);
+            _context.AutoCompletionHandler = _autoCompleteHandler;
+            _keyHandler = new KeyHandler(">", _context, false);
 
             "Hi ".Select(c => c.ToConsoleKeyInfo()).ToList().ForEach(_keyHandler.Handle);
 

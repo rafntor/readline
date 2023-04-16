@@ -12,7 +12,7 @@ namespace ReadLine
 
         public static string? Read(this ReadContext context, string prompt = "", string @default = "")
         {
-            KeyHandler keyHandler = new KeyHandler(prompt, context.Console, context.History, context.AutoCompletionHandler);
+            KeyHandler keyHandler = new KeyHandler(prompt, context, false);
             string? text = GetText(context.Console, keyHandler);
 
             if (string.IsNullOrWhiteSpace(text))
@@ -30,7 +30,7 @@ namespace ReadLine
         }
         public static string? ReadPassword(this ReadContext context, string prompt = "")
         {
-            KeyHandler keyHandler = new KeyHandler(prompt, context.Console, null, null);
+            KeyHandler keyHandler = new KeyHandler(prompt, context, true);
             return GetText(context.Console, keyHandler);
         }
         private static string? GetText(IConsole console, KeyHandler keyHandler)
