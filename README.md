@@ -17,43 +17,30 @@ with it some of the terminal goodness you get from unix shells, like command his
 
 ## Shortcut Guide
 
-| Shortcut                       | Comment                           |
-| ------------------------------ | --------------------------------- |
-| `Ctrl`+`A` / `HOME`            | Beginning of line                 |
-| `Ctrl`+`B` / `←`               | Backward one character            |
-| `Ctrl`+`C`                     | Send EOF                          |
-| `Ctrl`+`E` / `END`             | End of line                       |
-| `Ctrl`+`F` / `→`               | Forward one character             |
-| `Ctrl`+`H` / `Backspace`       | Delete previous character         |
-| `Tab`                          | Command line completion           |
-| `Shift`+`Tab`                  | Backwards command line completion |
-| `Ctrl`+`J` / `Enter`           | Line feed                         |
-| `Ctrl`+`K`                     | Cut text to the end of line       |
-| `Ctrl`+`L` / `Esc`             | Clear line                        |
-| `Ctrl`+`M`                     | Same as Enter key                 |
-| `Ctrl`+`N` / `↓`               | Forward in history                |
-| `Ctrl`+`P` / `↑`               | Backward in history               |
-| `Ctrl`+`U`                     | Cut text to the start of line     |
-| `Ctrl`+`W`                     | Cut previous word                 |
-| `Backspace`                    | Delete previous character         |
-| `Ctrl` + `D` / `Delete`        | Delete succeeding character       |
-
-
-## Installation
-
-Available on [NuGet](https://www.nuget.org/packages/rafntor.ReadLine/)
-
-Visual Studio:
-
-```powershell
-PM> Install-Package ReadLine
-```
-
-.NET Core CLI:
-
-```bash
-dotnet add package ReadLine
-```
+| Shortcut   |   Alias           | Comment                           |
+|:----------:|:-----------------:|:----------------------------------|
+| `Ctrl`+`A` | `Home`            | Go to beginning of line           |
+| `Ctrl`+`E` | `End`             | Go to end of line                 |
+| `Ctrl`+`B` | `←`               | Go backward one character         |
+| `Ctrl`+`F` | `→`               | Go forward one character          |
+| `Alt`+`B`  | `Ctrl`+`←`        | Go backward one word              |
+| `Alt`+`F`  | `Ctrl`+`→`        | Go forward one word               |
+| `Ctrl`+`C` | `Ctrl`+`Z`        | Send EOF                          |
+| `Ctrl`+`H` | `Backspace`       | Delete previous character         |
+| `Ctrl`+`D` | `Delete`          | Delete succeeding character       |
+| `Ctrl`+`J` | `Enter`           | Line feed                         |
+| `Ctrl`+`L` | `Esc`             | Clear line                        |
+| `Ctrl`+`P` | `↑`               | Backward in history               |
+| `Ctrl`+`N` | `↓`               | Forward in history                |
+|            | `F3`              | Last in history                   |
+|            | `Insert`          | Toggle insert mode                |
+| `Ctrl`+`I` | `Tab`             | Command line completion           |
+|            | `Shift`+`Tab`     | Backwards command line completion |
+| `Ctrl`+`U` | `Ctrl`+`Home`     | Cut text to the start of line     |
+| `Ctrl`+`K` | `Ctrl`+`End`      | Cut text to the end of line       |
+| `Ctrl`+`W` | `Ctrl`+`Backspace`| Cut previous word                 |
+| `Alt`+`D`  |                   | Cut succeeding word               |
+| `Ctrl`+`T` |                   | Swap last two chars before the cursor (typo) |
 
 
 ## Usage
