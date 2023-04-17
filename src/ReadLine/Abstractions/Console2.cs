@@ -30,20 +30,30 @@ namespace ReadLine
         }
         public void CursorAdvance(int count)
         {
-            var left = Console.CursorLeft + count;
-
-            while (left < 0)
+            if (Console.BufferWidth > 0)
             {
-                left += Console.BufferWidth;
-                Console.CursorTop--;
-            }
-            while (left >= Console.BufferWidth)
-            {
-                left -= Console.BufferWidth;
-                ++Console.CursorTop;
-            }
+                var left = Console.CursorLeft + count;
 
-            Console.CursorLeft = left;
+                while (left < 0)
+                {
+                    left += Console.BufferWidth;
+                    Console.CursorTop--;
+                }
+                while (left >= Console.BufferWidth)
+                {
+                    left -= Console.BufferWidth;
+                    ++Console.CursorTop;
+                }
+
+                Console.CursorLeft = left;
+            }
+            else // linux ?
+            {
+                if (count > 0)
+                    Write(Ansi.Cursor.Right(count));
+                else if (count < 0)
+                    Write(Ansi.Cursor.Left(-count));
+            }
         }
 
         public ConsoleKeyInfo ReadKey() => Console.ReadKey(true);
