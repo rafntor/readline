@@ -7,58 +7,24 @@ namespace ReadLine
 {
     internal class KeyHandler
     {
-        internal int _cursorLeft, _cursorTop;
-        private int _cursorPos;
+        internal int _cursorPos;
         private StringBuilder _text;
-        private List<string> _history;
         private int _historyIndex;
         private ConsoleKeyInfo _keyInfo;
         private Dictionary<string, Action> _keyActions;
         private List<string> _completions = new();
         private int _completionStart;
         private int _completionsIndex;
-        private bool _insertionMode;
         private bool _passwordMode;
         private bool _terminated = false;
-        private IConsole Console2;
+        private ReadContext _context;
         private bool IsStartOfLine() => _cursorPos == 0;
         private bool IsEndOfLine() => _cursorPos == _text.Length;
         private bool IsInAutoCompleteMode() => _completions.Count > 0;
 
-        void TrackCursorPos(int len)
-        {
-            _cursorLeft += len;
-
-            while (_cursorLeft < 0)
-            {
-                _cursorLeft += Console2.BufferWidth;
-                _cursorTop -= 1;
-            }
-            while (_cursorLeft > Console2.BufferWidth)
-            {
-                _cursorLeft -= Console2.BufferWidth;
-                _cursorTop += 1;
-            }
-        }
         void MoveCursorPos(int len)
         {
-            var oldTop = _cursorTop;
-            var oldLeft = _cursorLeft;
-
-            TrackCursorPos(len);
-
-            string ansiSequence = "";
-
-            if (oldLeft != _cursorLeft)
-                ansiSequence = EscapeSequence.Column(_cursorLeft + 1);
-
-            if (oldTop > _cursorTop)
-                ansiSequence = EscapeSequence.Up(oldTop - _cursorTop);
-            else if (oldTop < _cursorTop)
-                ansiSequence = EscapeSequence.Down(_cursorTop - oldTop);
-
-            if (ansiSequence.Length > 0)
-                Console2.Write(ansiSequence);
+            _context.Console.CursorAdvance(len);
         }
 
         private void MoveCursorLeft()
@@ -114,7 +80,7 @@ namespace ReadLine
 
         private void WriteChar() => WriteString(_keyInfo.KeyChar.ToString());
 
-        private void WriteString(string c) => WriteString(c, _insertionMode);
+        private void WriteString(string c) => WriteString(c, _context.InsertionMode);
         private void WriteString(string c, bool overwrite)
         {
             string trailing = "";
@@ -132,11 +98,9 @@ namespace ReadLine
             if (str.Length > 0)
             {
                 if (passwordMode)
-                    Console2.Write(new string('*', str.Length));
-                else
-                    Console2.Write(str);
+                    str = new string('*', str.Length);
 
-                TrackCursorPos(str.Length);
+                _context.Console.Write(str);
             }
         }
 
@@ -218,10 +182,10 @@ namespace ReadLine
 
         private void FirstHistory()
         {
-            if (_history.Count > 0)
+            if (_context.History.Count > 0)
             {
                 _historyIndex = 0;
-                WriteNewString(_history[_historyIndex]);
+                WriteNewString(_context.History[_historyIndex]);
             }
         }
 
@@ -230,19 +194,19 @@ namespace ReadLine
             if (_historyIndex > 0)
             {
                 _historyIndex--;
-                WriteNewString(_history[_historyIndex]);
+                WriteNewString(_context.History[_historyIndex]);
             }
         }
 
         private void NextHistory()
         {
-            if (_historyIndex < _history.Count)
+            if (_historyIndex < _context.History.Count)
             {
                 _historyIndex++;
-                if (_historyIndex == _history.Count)
+                if (_historyIndex == _context.History.Count)
                     ClearLine();
                 else
-                    WriteNewString(_history[_historyIndex]);
+                    WriteNewString(_context.History[_historyIndex]);
             }
         }
 
@@ -260,15 +224,15 @@ namespace ReadLine
             }
         }
 
-        public KeyHandler(string prompt, IConsole console, List<string>? history, IAutoCompleteHandler? autoCompleteHandler)
+        public KeyHandler(string prompt, ReadContext context, bool passwordMode)
         {
-            Console2 = console;
+            _context = context;
 
             ConsoleWrite(prompt, false);
 
-            _passwordMode = history == null; // history always initiated unless password mode
-            _history = history ?? new List<string>();
-            _historyIndex = _history.Count;
+            _passwordMode = passwordMode;
+
+            _historyIndex = _context.History.Count;
             _text = new StringBuilder();
             _keyActions = new Dictionary<string, Action>();
 
@@ -366,16 +330,18 @@ namespace ReadLine
                 }
                 else
                 {
-                    if (autoCompleteHandler == null || !IsEndOfLine())
+                    var handler = _context.AutoCompletionHandler;
+
+                    if (handler == null || !IsEndOfLine())
                         return;
 
                     string text = _text.ToString();
 
-                    _completionStart = text.LastIndexOfAny(autoCompleteHandler.Separators);
+                    _completionStart = text.LastIndexOfAny(handler.Separators);
                     _completionStart = _completionStart == -1 ? 0 : _completionStart + 1;
 
                     _completions.Clear();
-                    var suggestions = autoCompleteHandler.GetSuggestions(text, _completionStart);
+                    var suggestions = handler.GetSuggestions(text, _completionStart);
 
                     if (suggestions != null)
                         _completions.AddRange(suggestions);
@@ -393,7 +359,7 @@ namespace ReadLine
                 }
             };
             _keyActions["ControlI"] = _keyActions["Tab"];
-            _keyActions["Insert"] = () => _insertionMode = !_insertionMode;
+            _keyActions["Insert"] = () => _context.InsertionMode = !_context.InsertionMode;
             _keyActions["ControlC"] = () => { _terminated = true; };
             _keyActions["ControlZ"] = () => { _terminated = true; };
         }
