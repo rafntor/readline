@@ -20,10 +20,13 @@ namespace ReadLine
 
         public Console2()
         {
-            var handle = GetStdHandle(STD_OUTPUT_HANDLE); // https://github.com/microsoft/terminal/issues/8312#issuecomment-729468976
-            bool result = GetConsoleMode(handle, out var mode) && SetConsoleMode(handle, mode & ~ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-            if (!result)
-                System.Diagnostics.Debugger.Break();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var handle = GetStdHandle(STD_OUTPUT_HANDLE); // https://github.com/microsoft/terminal/issues/8312#issuecomment-729468976
+                bool result = GetConsoleMode(handle, out var mode) && SetConsoleMode(handle, mode & ~ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+                if (!result)
+                    System.Diagnostics.Debugger.Break();
+            }
         }
         public void CursorAdvance(int count)
         {
