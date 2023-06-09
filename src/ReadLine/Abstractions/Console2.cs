@@ -6,54 +6,43 @@ namespace ReadLine
 {
     internal class Console2 : IConsole
     {
-        const string Kernel32 = "kernel32.dll";
-
-        const int STD_OUTPUT_HANDLE = -11; // https://docs.microsoft.com/en-us/windows/console/getstdhandle
-        const int ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004; // https://docs.microsoft.com/en-us/windows/console/setconsolemode
-
-        [DllImport(Kernel32)]
-        static extern IntPtr GetStdHandle(int nStdHandle);
-        [DllImport(Kernel32)]
-        static extern bool GetConsoleMode(IntPtr handle, out int mode);
-        [DllImport(Kernel32)]
-        static extern bool SetConsoleMode(IntPtr handle, int mode);
-
+        readonly int _width;
         public Console2()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            // we want to run with virtual-processing active and that makes it impossible(?) to fully support line-wrapping so here we just try outr best
+            // https://github.com/microsoft/terminal/issues/8312#issuecomment-729468976
+
+            _width = Console.BufferWidth;
+
+            if (_width == 0) // embedded with stdout on serial line ? fallback to detection
             {
-                var handle = GetStdHandle(STD_OUTPUT_HANDLE); // https://github.com/microsoft/terminal/issues/8312#issuecomment-729468976
-                bool result = GetConsoleMode(handle, out var mode) && SetConsoleMode(handle, mode & ~ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-                if (!result)
-                    System.Diagnostics.Debugger.Break();
+                var left = Console.CursorLeft;
+                Write(Ansi.Cursor.Right(200));
+                _width = Console.CursorLeft + 1;
+                Write(Ansi.Cursor.Left(_width - left));
             }
         }
         public void CursorAdvance(int count)
         {
-            if (Console.BufferWidth > 0)
-            {
-                var left = Console.CursorLeft + count;
+            var left = Console.CursorLeft + count;
 
-                while (left < 0)
-                {
-                    left += Console.BufferWidth;
-                    Console.CursorTop--;
-                }
-                while (left >= Console.BufferWidth)
-                {
-                    left -= Console.BufferWidth;
-                    ++Console.CursorTop;
-                }
-
-                Console.CursorLeft = left;
-            }
-            else // linux ?
+            while (left < 0)
             {
-                if (count > 0)
-                    Write(Ansi.Cursor.Right(count));
-                else if (count < 0)
-                    Write(Ansi.Cursor.Left(-count));
+                left += _width;
+                Write(Ansi.Cursor.Up(1));
             }
+            while (left >= _width)
+            {
+                left -= _width;
+                Write(Ansi.Cursor.Down(1));
+            }
+
+            count = left - Console.CursorLeft;
+
+            if (count > 0)
+                Write(Ansi.Cursor.Right(count));
+            else if (count < 0)
+                Write(Ansi.Cursor.Left(-count));
         }
 
         public ConsoleKeyInfo ReadKey() => Console.ReadKey(true);
