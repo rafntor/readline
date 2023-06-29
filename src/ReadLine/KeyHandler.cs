@@ -112,17 +112,17 @@ namespace ReadLine
             MoveCursorPos(-len);
             _cursorPos -= len;
 
-            Delete(len);
+            Delete(len, false);
         }
 
-        private void Delete(int len)
+        private void Delete(int len, bool del_mode = true)
         {
             if (IsEndOfLine())
                 return;
 
             int index = _cursorPos;
 
-            bool just_spaces = string.IsNullOrWhiteSpace(_text.ToString(index, len));
+            bool just_spaces = del_mode && string.IsNullOrWhiteSpace(_text.ToString(index, len));
             _text.Remove(index, len);
 
             if (just_spaces)
