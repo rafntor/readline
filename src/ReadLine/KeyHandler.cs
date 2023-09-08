@@ -78,7 +78,11 @@ namespace ReadLine
             WriteString(str);
         }
 
-        private void WriteChar() => WriteString(_keyInfo.KeyChar.ToString());
+        private void WriteChar()
+        {
+            if (_keyInfo.KeyChar != '\0') // drop control-keys
+                WriteString(_keyInfo.KeyChar.ToString());
+        }
 
         private void WriteString(string c) => WriteString(c, _context.InsertionMode);
         private void WriteString(string c, bool overwrite)
